@@ -51,11 +51,12 @@ class Sulfuras(UpdateStrategy):
 
 class Conjured(UpdateStrategy):
     def update_item(self, item):
-        # Placeholder -  act like normal items for now
         if item.sell_in > 0:
-            item.quality = max(item.quality - 1, MIN_QUALITY)
-        else:
+            # degrade twice
             item.quality = max(item.quality - 2, MIN_QUALITY)
+        else:
+            # degrade four times
+            item.quality = max(item.quality - 4, MIN_QUALITY)
         item.sell_in -= 1
 
 
