@@ -12,7 +12,7 @@ class UpdateStrategy(ABC):
 class NormalItems(UpdateStrategy):
     def update_item(self, item):
         if item.sell_in > 0:
-            # degrade by 1
+            # degrade by 1 
             item.quality = max(item.quality - 1, MIN_QUALITY)
         else:
             # degrade twice
@@ -49,6 +49,15 @@ class Sulfuras(UpdateStrategy):
         # No changes for Sulfuras
         pass
 
+class Conjured(UpdateStrategy):
+    def update_item(self, item):
+        # Placeholder -  act like normal items for now
+        if item.sell_in > 0:
+            item.quality = max(item.quality - 1, MIN_QUALITY)
+        else:
+            item.quality = max(item.quality - 2, MIN_QUALITY)
+        item.sell_in -= 1
+
 
 class GildedRose(object):
 
@@ -63,7 +72,7 @@ class GildedRose(object):
         elif item.name == "Sulfuras, Hand of Ragnaros":
             return Sulfuras()
         elif item.name.startswith("Conjured"):
-            return NormalItems()  # Placeholder till ConjuredItems strategy is implemented
+            return Conjured()  # Placeholder with normal item behavior
         else:
             return NormalItems()
 
