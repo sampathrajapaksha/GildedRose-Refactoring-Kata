@@ -59,6 +59,18 @@ class Conjured(UpdateStrategy):
             item.quality = max(item.quality - 4, MIN_QUALITY)
         item.sell_in -= 1
 
+# Mapping item names to their respective strategies
+STRATEGY_MAP = {
+    "Aged Brie": AgedBrie,
+    "Backstage passes to a TAFKAL80ETC concert": BackstagePasses,
+    "Sulfuras, Hand of Ragnaros": Sulfuras,
+}
+
+# mapping for items with specific prefixes
+PREFIX_STRATEGIES = {
+    "Conjured": Conjured,
+}
+
 
 class GildedRose(object):
 
@@ -66,16 +78,12 @@ class GildedRose(object):
         self.items = items
 
     def get_strategy(self, item):
-        if item.name == "Aged Brie":
-            return AgedBrie()
-        elif item.name.startswith("Backstage passes"):
-            return BackstagePasses()
-        elif item.name == "Sulfuras, Hand of Ragnaros":
-            return Sulfuras()
-        elif item.name.startswith("Conjured"):
-            return Conjured()  # Placeholder with normal item behavior
-        else:
-            return NormalItems()
+        if item.name in STRATEGY_MAP:
+            return STRATEGY_MAP[item.name]()
+        for prefix, strategy in PREFIX_STRATEGIES.items():
+            if item.name.startswith(prefix):
+                return strategy()
+        return NormalItems()
 
     def update_quality(self):
         for item in self.items:
