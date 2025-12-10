@@ -4,7 +4,15 @@ from abc import ABC, abstractmethod
 MAX_QUALITY = 50
 MIN_QUALITY = 0
 
-class UpdateStrategy(ABC):
+class QualityRules:
+    '''For quality adjustments with bounds'''
+    def increase_quality(self, item, amount=1):
+        item.quality = max(MIN_QUALITY, min(MAX_QUALITY, item.quality + amount))
+    def decrease_quality(self, item, amount=1): 
+        item.quality = max(MIN_QUALITY, min(MAX_QUALITY, item.quality - amount))
+        
+
+class UpdateStrategy(ABC, QualityRules):
     @abstractmethod
     def update_item(self, item):
         pass
@@ -13,20 +21,20 @@ class NormalItems(UpdateStrategy):
     def update_item(self, item):
         if item.sell_in > 0:
             # degrade by 1 
-            item.quality = max(item.quality - 1, MIN_QUALITY)
+            self.decrease_quality(item, 1)
         else:
             # degrade twice
-            item.quality = max(item.quality - 2, MIN_QUALITY)
+            self.decrease_quality(item, 2)
         item.sell_in -= 1
 
 class AgedBrie(UpdateStrategy):
     def update_item(self, item):
         if item.sell_in > 0:
             # increase by 1
-            item.quality = min(item.quality + 1, MAX_QUALITY)
+            self.increase_quality(item, 1)
         else:
             # increase twice
-            item.quality = min(item.quality + 2, MAX_QUALITY)
+            self.increase_quality(item, 2)
         item.sell_in -= 1
 
 class BackstagePasses(UpdateStrategy):
@@ -35,13 +43,13 @@ class BackstagePasses(UpdateStrategy):
            item.quality = 0
         elif item.sell_in <= 5:
             # increase by 3
-            item.quality = min(item.quality + 3, MAX_QUALITY)
+            self.increase_quality(item, 3)
         elif item.sell_in <= 10:
             # increase by 2
-            item.quality = min(item.quality + 2, MAX_QUALITY)
+            self.increase_quality(item, 2)
         else:
             # increase by 1
-            item.quality = min(item.quality + 1, MAX_QUALITY)
+            self.increase_quality(item, 1)
         item.sell_in -= 1
 
 class Sulfuras(UpdateStrategy):
@@ -53,10 +61,10 @@ class Conjured(UpdateStrategy):
     def update_item(self, item):
         if item.sell_in > 0:
             # degrade twice
-            item.quality = max(item.quality - 2, MIN_QUALITY)
+            self.decrease_quality(item, 2)
         else:
             # degrade four times
-            item.quality = max(item.quality - 4, MIN_QUALITY)
+            self.decrease_quality(item, 4)
         item.sell_in -= 1
 
 # Mapping item names to their respective strategies
